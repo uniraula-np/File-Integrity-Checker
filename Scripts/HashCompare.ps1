@@ -4,10 +4,72 @@ Write-output "You are currently running Hash Comparison script of two folders"
 #Input Parameters
 #Enter the work folder path to create CSV files
 # Open folder browser dialog
-$FolderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
-$FolderBrowser.Description = "Select a folder to save scanned output"
-$null = $FolderBrowser.ShowDialog()
-$WorkFolder = $FolderBrowser.SelectedPath
+##########
+# Get paths from user input
+function Get-FolderPath {
+	   param(
+       [string]$DisplayText       
+   )
+   $form = New-Object System.Windows.Forms.Form
+   $form.Text = "Select a path for " + $DisplayText
+   $form.Size = New-Object System.Drawing.Size(450,200)
+   $form.StartPosition = "CenterScreen"
+   $form.FormBorderStyle = "FixedDialog"
+   $form.MaximizeBox = $false
+   $form.MinimizeBox = $false
+   # Label
+   $label = New-Object System.Windows.Forms.Label
+   $label.Location = New-Object System.Drawing.Point(10,20)
+   $label.Size = New-Object System.Drawing.Size(400,20)
+   $label.Text = "Select or enter " + $DisplayText + " path:"
+   $form.Controls.Add($label)
+   # TextBox for path input
+   $textBox = New-Object System.Windows.Forms.TextBox
+   $textBox.Location = New-Object System.Drawing.Point(10,40)
+   $textBox.Size = New-Object System.Drawing.Size(300,20)
+   $form.Controls.Add($textBox)
+   # Browse button
+   $browseButton = New-Object System.Windows.Forms.Button
+   $browseButton.Location = New-Object System.Drawing.Point(320,38)
+   $browseButton.Size = New-Object System.Drawing.Size(75,23)
+   $browseButton.Text = "Browse"
+   $browseButton.Add_Click({
+       $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
+       $folderBrowser.Description = $DisplayText
+       if ($folderBrowser.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+           $textBox.Text = $folderBrowser.SelectedPath
+       }
+   })
+   $form.Controls.Add($browseButton)
+   # Submit button
+   $submitButton = New-Object System.Windows.Forms.Button
+   $submitButton.Location = New-Object System.Drawing.Point(120,80)
+   $submitButton.Size = New-Object System.Drawing.Size(75,23)
+   $submitButton.Text = "Submit"
+   $submitButton.DialogResult = [System.Windows.Forms.DialogResult]::OK
+   $form.AcceptButton = $submitButton
+   $form.Controls.Add($submitButton)
+   # Cancel button
+   $cancelButton = New-Object System.Windows.Forms.Button
+   $cancelButton.Location = New-Object System.Drawing.Point(220,80)
+   $cancelButton.Size = New-Object System.Drawing.Size(75,23)
+   $cancelButton.Text = "Cancel"
+   $cancelButton.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+   $form.CancelButton = $cancelButton
+   $form.Controls.Add($cancelButton)
+   $form.Topmost = $true
+   $result = $form.ShowDialog()
+   if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+       return $textBox.Text
+   }
+   else {
+       return $null
+   }
+}
+
+#Get the location to save the output csv
+$WorkFolder = Get-FolderPath -DisplayText "Saving Scanned Output"
+##########
 # Check if a folder was selected
 if (-not $WorkFolder) {
    Write-output "No folder selected. Exiting script."
@@ -17,11 +79,7 @@ Write-Output "Your current workfolder is $WorkFolder "
 
 
 # Get the location of Source folder or the original location path.
-# Open folder browser dialog
-$FolderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
-$FolderBrowser.Description = "Select a source folder location"
-$null = $FolderBrowser.ShowDialog()
-$sourceFolder = $FolderBrowser.SelectedPath
+$sourceFolder = Get-FolderPath -DisplayText "Source Folder"
 # Check if a folder was selected
 if (-not $sourceFolder) {
    Write-output "No folder selected. Exiting script."
@@ -29,11 +87,7 @@ if (-not $sourceFolder) {
 }
 
 # Get the location of Destination Folder where files are copied.
-# Open folder browser dialog
-$FolderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
-$FolderBrowser.Description = "Select a destination folder location"
-$null = $FolderBrowser.ShowDialog()
-$destFolder = $FolderBrowser.SelectedPath
+$destFolder = Get-FolderPath -DisplayText "Destination Folder"
 # Check if a folder was selected
 if (-not $destFolder) {
    Write-output "No folder selected. Exiting script."
