@@ -37,7 +37,7 @@ if (-not $FilePath) {
 ## Output the selected file path
 # Location to export a csv file
 $FolderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
-$FolderBrowser.Description = "Select a location of folder for hash file generation"
+$FolderBrowser.Description = "Select a location of folder for saving generated hash file"
 $null = $FolderBrowser.ShowDialog()
 $WorkFolder = $FolderBrowser.SelectedPath
 # Check if a folder was selected
